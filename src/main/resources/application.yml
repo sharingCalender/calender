@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: calender
+  profiles:
+    active:  dev
+  config:
+    import: optional:configserver:http://${username}:${password}@localhost:9000
+
+

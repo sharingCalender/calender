@@ -1,6 +1,6 @@
 spring:
   application:
-    name: calender
+    name: calender-service
   profiles:
     active:  dev
   config:

@@ -1,8 +1,0 @@
-package sharingcalender.calender.exception;
-
-public class UserNotFoundException extends RuntimeException {
-
-    public UserNotFoundException(String message) {
-        super(message);
-    }
-}

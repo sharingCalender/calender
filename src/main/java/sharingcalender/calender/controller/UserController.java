@@ -27,7 +27,7 @@ public class UserController {
     private final UserService userService;
 
 
-    @PostMapping()
+    @PostMapping("/register")
     public ResponseEntity<Void> registerOriginUser(
         @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto,
         BindingResult bindingResult) {
@@ -45,7 +45,7 @@ public class UserController {
         @PathVariable("username") String username) {
 
         if (Objects.isNull(username)) {
-            throw new IllegalArgumentException();
+            throw new BadRequestException("Bad Request");
         }
 
         UsernamePasswordResponseDto usernameAndPassword = userService.getUsernameAndPassword(

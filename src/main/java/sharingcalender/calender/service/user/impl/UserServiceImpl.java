@@ -10,7 +10,7 @@ import sharingcalender.calender.dto.user.request.UserRegisterRequestDto;
 import sharingcalender.calender.dto.user.response.UsernamePasswordResponseDto;
 import sharingcalender.calender.entity.User;
 import sharingcalender.calender.exception.AlreadyExistException;
-import sharingcalender.calender.exception.UserNotFoundException;
+import sharingcalender.calender.exception.ResourceNotFoundException;
 import sharingcalender.calender.repository.UserRepository;
 import sharingcalender.calender.service.user.UserService;
 
@@ -40,11 +40,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UsernamePasswordResponseDto getUsernameAndPassword(String username) {
+
         UsernamePasswordResponseDto usernamePasswordResponseDto = userRepository.findUserInfoByUsername(
             username);
 
         if (usernamePasswordResponseDto == null) {
-            throw new UserNotFoundException("User who has this username is Not Found ");
+            throw new ResourceNotFoundException("User who has this username is Not Found ");
         }
 
         return usernamePasswordResponseDto;

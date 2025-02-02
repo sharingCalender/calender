@@ -9,7 +9,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import sharingcalender.calender.dto.user.response.UsernamePasswordResponseDto;
-import sharingcalender.calender.exception.UserNotFoundException;
 import sharingcalender.calender.repository.qdsl.UserQueryDSLRepository;
 
 @RequiredArgsConstructor

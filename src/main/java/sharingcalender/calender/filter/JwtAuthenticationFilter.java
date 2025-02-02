@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sharingcalender.calender.jwt.JwtUtil;
 
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 

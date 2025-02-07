@@ -11,6 +11,6 @@ public interface UserService {
 
     UsernamePasswordResponseDto getUsernameAndPassword(String username);
 
-    void oauthUserIsExist(OAuthUserIsExistRequestDto oAuthUser);
+    boolean oauthUserIsExist(OAuthUserIsExistRequestDto oAuthUser);
 
 }

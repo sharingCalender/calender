@@ -3,10 +3,15 @@ package sharingcalender.calender.repository.qdsl.impl;
 
 import static sharingcalender.calender.entity.QCalendar.calendar;
 import static sharingcalender.calender.entity.QEvent.event;
+import static sharingcalender.calender.entity.QUser.user;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
+import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
 import sharingcalender.calender.repository.qdsl.EventQueryDSLRepository;
 
 
@@ -26,5 +31,43 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
                     .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
             ));
     }
+
+    public List<EventInfoResponseDto> getAllEventsInCalendarByCalendarGroupId(long calendarGroupId,
+        String username) {
+
+        return jpaQueryFactory
+            .select(Projections.constructor(EventInfoResponseDto.class,
+                event.eventId,
+                event.calendar.calendarId,
+                JPAExpressions
+                    .select(user.name.as("name"))
+                    .from(user)
+                    .where(user.username.eq(username)),
+                event.title,
+                event.startDate,
+                event.endDate,
+                event.backgroundColor,
+                event.borderColor,
+                event.description,
+                event.writer
+            ))
+            .from(event)
+            .where(event.calendar.calendarId.eq(
+                JPAExpressions
+                    .select(calendar.calendarId)
+                    .from(calendar)
+                    .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
+            )).fetch();
+    }
+
+//    public void modifyEvent(EventModifyRequestDto eventModifyReq) {
+//        jpaQueryFactory
+//            .update(event)
+//            .set(event.title, eventModifyReq.title())
+//            .set(event.startDate, eventModifyReq.startDate())
+//            .set(event.endDate, eventModifyReq.endDate())
+//            .set(event.description, eventModifyReq.description())
+//            .execute();
+//    }
 
 }

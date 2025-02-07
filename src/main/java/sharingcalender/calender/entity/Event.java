@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -29,18 +30,24 @@ public class Event {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Setter
     private String title;
 
     private String writer;
 
+    @Setter
     private LocalDateTime startDate;
 
+    @Setter
     private LocalDateTime endDate;
 
+    @Setter
     private String backgroundColor;
 
+    @Setter
     private String borderColor;
 
+    @Setter
     private String description;
 
     public Event(Calendar calendar, User user, String title, String writer, LocalDateTime startDate,

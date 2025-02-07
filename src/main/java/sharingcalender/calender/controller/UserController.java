@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import sharingcalender.calender.dto.AuthenticatedUser;
+import sharingcalender.calender.dto.calendar.request.CalendarGroupRegisterRequestDto;
 import sharingcalender.calender.dto.user.request.OAuthUserIsExistRequestDto;
 import sharingcalender.calender.dto.user.request.UserRegisterRequestDto;
 import sharingcalender.calender.dto.user.response.UsernamePasswordResponseDto;
 import sharingcalender.calender.exception.BadRequestException;
+import sharingcalender.calender.service.calendar.CalendarGroupService;
 import sharingcalender.calender.service.user.UserService;
 
 
@@ -24,8 +27,9 @@ import sharingcalender.calender.service.user.UserService;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final String MY_CALENDAR = "MyCalendar";
     private final UserService userService;
-
+    private final CalendarGroupService calendarGroupService;
 
     @PostMapping("/register")
     public ResponseEntity<Void> registerOriginUser(
@@ -36,6 +40,10 @@ public class UserController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
         userService.registerUser(userRegisterRequestDto);
+
+
+        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
+            new AuthenticatedUser(userRegisterRequestDto.username(), "USER"));
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -64,7 +72,10 @@ public class UserController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        userService.oauthUserIsExist(oAuthUserIsExistRequestDto);
+        boolean isExist = userService.oauthUserIsExist(oAuthUserIsExistRequestDto);
+
+        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
+            new AuthenticatedUser(oAuthUserIsExistRequestDto.email(), "USER"));
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

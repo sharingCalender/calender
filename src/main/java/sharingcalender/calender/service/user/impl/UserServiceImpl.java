@@ -22,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+
     @Override
     public void registerUser(UserRegisterRequestDto userRegisterRequestDto) {
 
@@ -36,6 +37,8 @@ public class UserServiceImpl implements UserService {
             userRegisterRequestDto.provider());
 
         userRepository.save(user);
+
+
     }
 
     @Override
@@ -52,11 +55,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void oauthUserIsExist(OAuthUserIsExistRequestDto oAuthUser) {
-        String username = oAuthUser.id() + "-" + oAuthUser.provider();
+    public boolean oauthUserIsExist(OAuthUserIsExistRequestDto oAuthUser) {
+        String username = oAuthUser.email();
 
         if (userRepository.existsByUsername(username)) {
-            return;
+            return true;
         }
 
         User user = new User(oAuthUser.name(), oAuthUser.email(), LocalDateTime.now(),
@@ -64,6 +67,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
+        return false;
     }
 
 }

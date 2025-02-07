@@ -11,7 +11,7 @@ public record OAuthUserIsExistRequestDto(
     String mobile,
     @NotBlank
     String email,
-    @NotBlank
+
     String provider,
 
     String password

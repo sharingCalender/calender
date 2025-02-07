@@ -33,7 +33,7 @@ public class UserController {
         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            throw new BadRequestException("Bad Request");
+            throw new BadRequestException("Request Body Is Not Valid");
         }
         userService.registerUser(userRegisterRequestDto);
 
@@ -57,7 +57,12 @@ public class UserController {
 
     @PostMapping("/oauth/isExist")
     public ResponseEntity<Void> oauthUserIsExist(
-        @RequestBody OAuthUserIsExistRequestDto oAuthUserIsExistRequestDto) {
+        @RequestBody OAuthUserIsExistRequestDto oAuthUserIsExistRequestDto,
+        BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new BadRequestException("Request Body Is Not Valid");
+        }
 
         userService.oauthUserIsExist(oAuthUserIsExistRequestDto);
 

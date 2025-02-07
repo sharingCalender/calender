@@ -3,6 +3,8 @@ package sharingcalender.calender.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,12 +31,20 @@ public class UserCalendar {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(length = 50)
-    private String authority;
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
 
-    public UserCalendar(Calendar calendar, User user, String authority) {
+    public UserCalendar(Calendar calendar, User user, Authority authority) {
         this.calendar = calendar;
         this.user = user;
         this.authority = authority;
     }
+
+
+    public enum Authority {
+        ADMIN,
+        MEMBER;
+    }
+
 }
+

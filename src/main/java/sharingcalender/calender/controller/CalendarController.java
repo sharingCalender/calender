@@ -1,5 +1,6 @@
 package sharingcalender.calender.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,14 +15,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import sharingcalender.calender.dto.AuthenticatedUser;
 import sharingcalender.calender.dto.calendar.request.CalendarGroupDeleteRequestDto;
 import sharingcalender.calender.dto.calendar.request.CalendarGroupRegisterRequestDto;
+import sharingcalender.calender.dto.calendar.request.EventChangeColorRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventDeleteRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventRegisterRequestDto;
 import sharingcalender.calender.dto.calendar.response.CalendarLookUpResponseDto;
 import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
+import sharingcalender.calender.dto.calendar.response.EventRegisterResponseDto;
 import sharingcalender.calender.exception.BadRequestException;
 import sharingcalender.calender.service.calendar.CalendarGroupService;
 import sharingcalender.calender.service.calendar.EventService;
@@ -63,17 +67,17 @@ public class CalendarController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/event/{calendarGroupId}")
+    @GetMapping("/event")
     public ResponseEntity<CalendarLookUpResponseDto> getAllEventsInCalendar(
-        @PathVariable("calendarGroupId") long calendarGroupId,
-        @AuthenticationPrincipal AuthenticatedUser user) {
+        @RequestParam("calendarGroupId") long calendarGroupId, @RequestParam("start") String start,
+        @RequestParam("end") String end, @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (calendarGroupId < 0) {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
         List<EventInfoResponseDto> allEventsInCalendar = eventService.getAllEventsInCalendar(
-            calendarGroupId, user.username());
+            calendarGroupId, user.username(), start, end);
 
         return ResponseEntity.status(HttpStatus.OK).body(
             new CalendarLookUpResponseDto(allEventsInCalendar.get(0).calendarId(),
@@ -81,16 +85,17 @@ public class CalendarController {
     }
 
     @PostMapping("/event")
-    public ResponseEntity<Void> registerEvent(@RequestBody EventRegisterRequestDto eventRegisterReq,
+    public ResponseEntity<EventRegisterResponseDto> registerEvent(@RequestBody EventRegisterRequestDto eventRegisterReq,
         BindingResult bindingResult, @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        eventService.registerEvent(eventRegisterReq, user.username());
+        long eventId = eventService.registerEvent(eventRegisterReq, user.username());
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(new EventRegisterResponseDto(eventId));
     }
 
     @PatchMapping("/event")
@@ -102,6 +107,19 @@ public class CalendarController {
         }
 
         eventService.modifyEvent(eventModifyReq);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PatchMapping("/event/color")
+    public ResponseEntity<Void> changeEventColor(
+        @RequestBody EventChangeColorRequestDto eventChangeColorReq, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new BadRequestException("Request Body Is Not Valid");
+        }
+
+        eventService.changeEventColor(eventChangeColorReq);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

@@ -12,9 +12,9 @@ public record EventRegisterRequestDto (
     @NotBlank
     String title,
     @NotNull
-    LocalDateTime startDate,
+    LocalDateTime start,
     @NotNull
-    LocalDateTime endDate,
+    LocalDateTime end,
     @NotBlank
     String backgroundColor,
     @NotBlank

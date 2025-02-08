@@ -4,6 +4,6 @@ import jakarta.validation.constraints.Min;
 
 public record CalendarGroupDeleteRequestDto (
 
-    @Min(1L)
+    @Min(0L)
     long calendarGroupId
 ){}

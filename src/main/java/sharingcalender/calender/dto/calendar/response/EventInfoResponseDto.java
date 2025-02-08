@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 
 public record EventInfoResponseDto(
 
-    long eventId,
+    long id,
     long calendarId,
     String name,
     String title,
-    LocalDateTime startDate,
-    LocalDateTime endDate,
+    LocalDateTime start,
+    LocalDateTime end,
     String backgroundColor,
     String borderColor,
     String description,

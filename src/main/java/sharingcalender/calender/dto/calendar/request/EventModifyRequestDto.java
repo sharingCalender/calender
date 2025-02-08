@@ -11,9 +11,9 @@ public record EventModifyRequestDto (
     @NotBlank
     String title,
     @NotBlank
-    LocalDateTime startDate,
+    LocalDateTime start,
     @NotBlank
-    LocalDateTime endDate,
+    LocalDateTime end,
     @NotNull
     String description
 ){}

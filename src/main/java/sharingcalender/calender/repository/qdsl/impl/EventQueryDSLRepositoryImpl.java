@@ -8,6 +8,7 @@ import static sharingcalender.calender.entity.QUser.user;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
@@ -33,16 +34,13 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
     }
 
     public List<EventInfoResponseDto> getAllEventsInCalendarByCalendarGroupId(long calendarGroupId,
-        String username) {
+        String username, LocalDateTime start, LocalDateTime end) {
 
         return jpaQueryFactory
             .select(Projections.constructor(EventInfoResponseDto.class,
                 event.eventId,
                 event.calendar.calendarId,
-                JPAExpressions
-                    .select(user.name.as("name"))
-                    .from(user)
-                    .where(user.username.eq(username)),
+                event.user.name,
                 event.title,
                 event.startDate,
                 event.endDate,
@@ -52,12 +50,19 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
                 event.writer
             ))
             .from(event)
-            .where(event.calendar.calendarId.eq(
-                JPAExpressions
-                    .select(calendar.calendarId)
-                    .from(calendar)
-                    .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
-            )).fetch();
+            .where
+                (
+                    event.calendar.calendarId.eq
+                        (
+                        JPAExpressions
+                            .select(calendar.calendarId)
+                            .from(calendar)
+                            .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
+                        )
+                        .and(event.startDate.lt(end))
+                        .and(event.endDate.goe(start))
+                )
+            .fetch();
     }
 
 //    public void modifyEvent(EventModifyRequestDto eventModifyReq) {

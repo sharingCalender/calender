@@ -1,11 +1,13 @@
 package sharingcalender.calender.service.calendar.impl;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sharingcalender.calender.dto.calendar.request.EventChangeColorRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventDeleteRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventRegisterRequestDto;
@@ -29,12 +31,17 @@ public class EventServiceImpl implements EventService {
     private final CalendarRepository calendarRepository;
     private final UserRepository userRepository;
 
-    public List<EventInfoResponseDto> getAllEventsInCalendar(long calendarGroupId, String username) {
+    @Override
+    public List<EventInfoResponseDto> getAllEventsInCalendar(long calendarGroupId, String username,String start, String end) {
+        LocalDateTime startDateTime = convertStringToLocalDateTIme(start);
+        LocalDateTime endDateTime = convertStringToLocalDateTIme(end);
 
-        return eventRepository.getAllEventsInCalendarByCalendarGroupId(calendarGroupId, username);
+        return eventRepository.getAllEventsInCalendarByCalendarGroupId(calendarGroupId, username,
+            startDateTime, endDateTime);
     }
 
-    public void registerEvent(EventRegisterRequestDto eventRegisterReq, String username) {
+    @Override
+    public long registerEvent(EventRegisterRequestDto eventRegisterReq, String username) {
 
         Optional<Calendar> calendarEntity = calendarRepository.findById(
             eventRegisterReq.calendarId());
@@ -50,11 +57,14 @@ public class EventServiceImpl implements EventService {
         }
 
         Event eventEntity = new Event(calendarEntity.get(), userEntity.get(), eventRegisterReq.title(),
-            eventRegisterReq.writer(), eventRegisterReq.startDate(), eventRegisterReq.endDate(),
+            eventRegisterReq.writer(), eventRegisterReq.start(), eventRegisterReq.end(),
             eventRegisterReq.backgroundColor(), eventRegisterReq.borderColor(),
             eventRegisterReq.description());
 
-        eventRepository.save(eventEntity);
+        Event savedEvent = eventRepository.save(eventEntity);
+
+        return savedEvent.getEventId();
+
     }
 
     public void modifyEvent(EventModifyRequestDto eventModifyReq) {
@@ -65,15 +75,34 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventEntity.get();
         event.setTitle(eventModifyReq.title());
-        event.setStartDate(eventModifyReq.startDate());
-        event.setEndDate(eventModifyReq.endDate());
+        event.setStartDate(eventModifyReq.start());
+        event.setEndDate(eventModifyReq.end());
         event.setDescription(eventModifyReq.description());
 
+    }
+
+    public void changeEventColor(EventChangeColorRequestDto eventChangeColorReq) {
+        Optional<Event> eventEntity = eventRepository.findById(eventChangeColorReq.eventId());
+
+        if (eventEntity.isEmpty()) {
+            throw new ResourceNotFoundException("Can Not Find Event");
+        }
+        Event event = eventEntity.get();
+
+        event.setBackgroundColor(eventChangeColorReq.backgroundColor());
+        event.setBorderColor(eventChangeColorReq.borderColor());
     }
 
     public void deleteEvent(EventDeleteRequestDto eventDeleteReq) {
         eventRepository.deleteById(eventDeleteReq.eventId());
 
+    }
+
+    private LocalDateTime convertStringToLocalDateTIme(String dateTime) {
+        String[] dateTimeArr = dateTime.split("T")[0].split("-");
+
+        return LocalDateTime.of(Integer.parseInt(dateTimeArr[0]), Integer.parseInt(dateTimeArr[1]),
+            Integer.parseInt(dateTimeArr[2]), 0, 0, 0);
     }
 
 }

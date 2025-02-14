@@ -23,6 +23,8 @@ import sharingcalender.calender.dto.calendar.request.EventChangeColorRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventDeleteRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
 import sharingcalender.calender.dto.calendar.request.EventRegisterRequestDto;
+import sharingcalender.calender.dto.calendar.response.CalendarGroupInfoDto;
+import sharingcalender.calender.dto.calendar.response.CalendarGroupListResponseDto;
 import sharingcalender.calender.dto.calendar.response.CalendarLookUpResponseDto;
 import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
 import sharingcalender.calender.dto.calendar.response.EventRegisterResponseDto;
@@ -38,6 +40,14 @@ public class CalendarController {
 
     private final CalendarGroupService calendarGroupService;
     private final EventService eventService;
+
+    @GetMapping("/group")
+    public ResponseEntity<CalendarGroupListResponseDto> getGroupInfoList(@AuthenticationPrincipal AuthenticatedUser user) {
+        CalendarGroupListResponseDto groupInfoList = calendarGroupService.getGroupInfoList(
+            user.getUsername());
+
+        return ResponseEntity.status(HttpStatus.OK).body(groupInfoList);
+    }
 
     @PostMapping("/group")
     public ResponseEntity<Void> registerGroup(
@@ -77,11 +87,10 @@ public class CalendarController {
         }
 
         List<EventInfoResponseDto> allEventsInCalendar = eventService.getAllEventsInCalendar(
-            calendarGroupId, user.username(), start, end);
+            calendarGroupId, user.getUsername(), start, end);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-            new CalendarLookUpResponseDto(allEventsInCalendar.get(0).calendarId(),
-                allEventsInCalendar));
+            new CalendarLookUpResponseDto(allEventsInCalendar));
     }
 
     @PostMapping("/event")
@@ -92,7 +101,7 @@ public class CalendarController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        long eventId = eventService.registerEvent(eventRegisterReq, user.username());
+        long eventId = eventService.registerEvent(eventRegisterReq, user.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(new EventRegisterResponseDto(eventId));

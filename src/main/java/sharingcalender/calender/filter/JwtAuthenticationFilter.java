@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sharingcalender.calender.dto.AuthenticatedUser;
 import sharingcalender.calender.jwt.JwtUtil;
 
 @Component
@@ -40,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = claims.get("username");
         String role = claims.get("role");
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null,
+        Authentication authentication = new UsernamePasswordAuthenticationToken(new AuthenticatedUser(username,role), null,
             Collections.singletonList(new SimpleGrantedAuthority(role)));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

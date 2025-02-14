@@ -39,11 +39,8 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             throw new BadRequestException("Request Body Is Not Valid");
         }
+
         userService.registerUser(userRegisterRequestDto);
-
-
-        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
-            new AuthenticatedUser(userRegisterRequestDto.username(), "USER"));
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -74,8 +71,7 @@ public class UserController {
 
         boolean isExist = userService.oauthUserIsExist(oAuthUserIsExistRequestDto);
 
-        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
-            new AuthenticatedUser(oAuthUserIsExistRequestDto.email(), "USER"));
+
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

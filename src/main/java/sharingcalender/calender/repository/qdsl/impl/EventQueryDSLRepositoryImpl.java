@@ -30,7 +30,8 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
                     .select(calendar.calendarId)
                     .from(calendar)
                     .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
-            ));
+            ))
+            .execute();
     }
 
     public List<EventInfoResponseDto> getAllEventsInCalendarByCalendarGroupId(long calendarGroupId,
@@ -42,8 +43,8 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
                 event.calendar.calendarId,
                 event.user.name,
                 event.title,
-                event.startDate,
-                event.endDate,
+                event.start,
+                event.end,
                 event.backgroundColor,
                 event.borderColor,
                 event.description,
@@ -59,8 +60,8 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
                             .from(calendar)
                             .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
                         )
-                        .and(event.startDate.lt(end))
-                        .and(event.endDate.goe(start))
+                        .and(event.start.lt(end))
+                        .and(event.end.goe(start))
                 )
             .fetch();
     }

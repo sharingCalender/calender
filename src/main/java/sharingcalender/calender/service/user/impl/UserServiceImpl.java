@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sharingcalender.calender.dto.AuthenticatedUser;
+import sharingcalender.calender.dto.calendar.request.CalendarGroupRegisterRequestDto;
 import sharingcalender.calender.dto.user.request.OAuthUserIsExistRequestDto;
 import sharingcalender.calender.dto.user.request.UserRegisterRequestDto;
 import sharingcalender.calender.dto.user.response.UsernamePasswordResponseDto;
@@ -12,6 +14,7 @@ import sharingcalender.calender.entity.User;
 import sharingcalender.calender.exception.AlreadyExistException;
 import sharingcalender.calender.exception.ResourceNotFoundException;
 import sharingcalender.calender.repository.UserRepository;
+import sharingcalender.calender.service.calendar.CalendarGroupService;
 import sharingcalender.calender.service.user.UserService;
 
 @Service
@@ -21,6 +24,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CalendarGroupService calendarGroupService;
+    private static final String MY_CALENDAR = "MyCalendar";
 
 
     @Override
@@ -38,9 +43,11 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-
+        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
+            new AuthenticatedUser(userRegisterRequestDto.username(), "USER"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UsernamePasswordResponseDto getUsernameAndPassword(String username) {
 
@@ -66,6 +73,9 @@ public class UserServiceImpl implements UserService {
             oAuthUser.mobile(), username, oAuthUser.password(), oAuthUser.provider());
 
         userRepository.save(user);
+
+        calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
+            new AuthenticatedUser(username, "USER"));
 
         return false;
     }

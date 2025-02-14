@@ -36,10 +36,10 @@ public class Event {
     private String writer;
 
     @Setter
-    private LocalDateTime startDate;
+    private LocalDateTime start;
 
     @Setter
-    private LocalDateTime endDate;
+    private LocalDateTime end;
 
     @Setter
     private String backgroundColor;
@@ -56,8 +56,8 @@ public class Event {
         this.user = user;
         this.title = title;
         this.writer = writer;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.start = startDate;
+        this.end = endDate;
         this.backgroundColor = backgroundColor;
         this.borderColor = borderColor;
         this.description = description;

@@ -16,6 +16,7 @@ public class UserGroupQueryDSLRepositoryImpl implements UserGroupQueryDSLReposit
     public void deleteByCalendarGroupId(long calendarGroupId) {
 
         jpaQueryFactory.delete(userGroup)
-            .where(userGroup.userGroupId.eq(calendarGroupId));
+            .where(userGroup.userGroupId.eq(calendarGroupId))
+            .execute();
     }
 }

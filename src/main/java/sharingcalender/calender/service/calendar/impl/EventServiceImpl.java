@@ -24,7 +24,7 @@ import sharingcalender.calender.service.calendar.EventService;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl  implements EventService{
 
 
     private final EventRepository eventRepository;
@@ -75,8 +75,8 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventEntity.get();
         event.setTitle(eventModifyReq.title());
-        event.setStartDate(eventModifyReq.start());
-        event.setEndDate(eventModifyReq.end());
+        event.setStart(eventModifyReq.start());
+        event.setEnd(eventModifyReq.end());
         event.setDescription(eventModifyReq.description());
 
     }

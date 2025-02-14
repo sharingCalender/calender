@@ -21,6 +21,7 @@ public class UserCalendarQueryDSLRepositoryImpl implements UserCalendarQueryDSLR
                 JPAExpressions.select(calendar.calendarId)
                     .from(calendar)
                     .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
-            ));
+            ))
+            .execute();
     }
 }

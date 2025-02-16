@@ -9,7 +9,7 @@ public interface CalendarGroupService {
 
     void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, AuthenticatedUser user);
 
-    void deleteGroup(long calendarGroupId);
+    void deleteGroup(long calendarGroupId,String username);
 
     CalendarGroupListResponseDto getGroupInfoList(String username);
 }

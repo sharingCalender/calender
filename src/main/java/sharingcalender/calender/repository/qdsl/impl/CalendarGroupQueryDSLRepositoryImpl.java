@@ -42,4 +42,12 @@ public class CalendarGroupQueryDSLRepositoryImpl implements CalendarGroupQueryDS
             .fetch();
 
     }
+
+    public void deleteByCalendarGroupId(long calendarGroupId) {
+        jpaQueryFactory
+            .delete(calendarGroup)
+            .where(calendarGroup.calendarGroupId.eq(calendarGroupId))
+            .execute();
+
+    }
 }

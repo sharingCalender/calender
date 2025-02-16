@@ -42,6 +42,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
 
     @Transactional(readOnly = true)
+    @Override
     public CalendarGroupListResponseDto getGroupInfoList(String username) {
 
         CalendarGroupListResponseDto calendarGroupListResponseDto = new CalendarGroupListResponseDto(
@@ -51,6 +52,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     }
 
+    @Override
     public void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, AuthenticatedUser user) {
 
 
@@ -72,18 +74,31 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     }
 
-    public void deleteGroup(long calendarGroupId) {
+    @Override
+    public void deleteGroup(long calendarGroupId,String username) {
 
-        userCalendarRepository.deleteUserCalendarByCalendarGroupId(calendarGroupId);
-
-        userGroupRepository.deleteByCalendarGroupId(calendarGroupId);
-
-        eventRepository.deleteEventByCalendarGroupId(calendarGroupId);
+        Authority authorityForCalendar = userCalendarRepository.getAuthorityForCalendar(
+            calendarGroupId, username);
 
 
-        calendarRepository.deleteByCalendarGroup_CalendarGroupId(calendarGroupId);
-        // 마지막에 calendarGroup 삭제
-        calendarGroupRepository.deleteById(calendarGroupId);
+
+        if (Authority.ADMIN == authorityForCalendar) {
+            userCalendarRepository.deleteUserCalendarByCalendarGroupId(calendarGroupId);
+
+            userGroupRepository.deleteByCalendarGroupId(calendarGroupId);
+
+            eventRepository.deleteEventByCalendarGroupId(calendarGroupId);
+
+            calendarRepository.deleteByCalendarGroupId(calendarGroupId);
+
+            calendarGroupRepository.deleteByCalendarGroupId(calendarGroupId);
+
+        } else {
+            userCalendarRepository.deleteUserCalendarByMember(calendarGroupId, username);
+            userGroupRepository.deleteUserGroupByMember(calendarGroupId, username);
+        }
+
+
 
     }
 

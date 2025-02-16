@@ -23,7 +23,7 @@ import sharingcalender.calender.service.user.UserService;
 
 
 @Controller
-@RequestMapping("/api/calender/user")
+@RequestMapping("/api/calendar/user")
 @RequiredArgsConstructor
 public class UserController {
 

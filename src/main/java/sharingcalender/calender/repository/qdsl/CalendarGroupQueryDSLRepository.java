@@ -6,4 +6,6 @@ import sharingcalender.calender.dto.calendar.response.CalendarGroupInfoDto;
 public interface CalendarGroupQueryDSLRepository {
 
     List<CalendarGroupInfoDto> getGroupInfoList(String username);
+
+    void deleteByCalendarGroupId(long calendarGroupId);
 }

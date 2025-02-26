@@ -36,5 +36,8 @@ jobs:
           push: true # 이미지를 레지스트리에 푸쉬
           tags: ${{secrets.DOCKERHUB_USERNAME}}/calendar
           platforms: linux/amd64
+          build-args: |
+            SECRETS_USERNAME=${{secrets.username}}
+            SECRETS_PASSWORD=${{secrets.password}}
 
 

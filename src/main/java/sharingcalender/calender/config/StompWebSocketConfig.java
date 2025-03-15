@@ -18,6 +18,8 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        System.out.println(websocketURL);
+
         registry.addEndpoint("/connect")
             .setAllowedOrigins(websocketURL)
             .setHandshakeHandler(new CustomHandShakeHandler())

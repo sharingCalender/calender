@@ -11,8 +11,15 @@ spring:
 
     import: optional:configserver:http://${username}:${password}@localhost:9000
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: localRedis
 
 
+websocket:
+  url: http://localhost:8580
 
 ---
 

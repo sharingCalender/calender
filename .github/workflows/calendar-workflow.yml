@@ -5,11 +5,11 @@ on:
   push:
     branches:
       - develop # develop 브랜치에 푸쉬될 때 실행되도록 한다.
-  pull_request:
-    branches:
-      - develop
-    types:
-      - closed # develop 브랜치에 merge 될 때만 실행되도록 한다.
+#  pull_request:
+#    branches:
+#      - develop
+#    types:
+#      - closed # develop 브랜치에 merge 될 때만 실행되도록 한다.
 
 jobs:
   build-and-push:

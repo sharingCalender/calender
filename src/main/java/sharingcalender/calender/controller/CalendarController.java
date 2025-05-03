@@ -92,7 +92,7 @@ public class CalendarController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        List<EventInfoResponseDto> allEventsInCalendar = eventService.getAllEventsInCalendar(
+        List<EventInfoResponseDto> allEventsInCalendar = eventService.getEventsInCalendar(
             calendarGroupId, user.getUsername(), start, end);
 
         return ResponseEntity.status(HttpStatus.OK).body(

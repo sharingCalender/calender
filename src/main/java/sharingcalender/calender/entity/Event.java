@@ -50,7 +50,7 @@ public class Event {
     @Setter
     private String description;
 
-    public Event(Calendar calendar, User user, String title, String writer, LocalDateTime startDate,
+    private Event(Calendar calendar, User user, String title, String writer, LocalDateTime startDate,
         LocalDateTime endDate, String backgroundColor, String borderColor, String description) {
         this.calendar = calendar;
         this.user = user;
@@ -61,5 +61,13 @@ public class Event {
         this.backgroundColor = backgroundColor;
         this.borderColor = borderColor;
         this.description = description;
+    }
+
+    public static Event create(Calendar calendar, User user, String title, String writer,
+        LocalDateTime startDate,
+        LocalDateTime endDate, String backgroundColor, String borderColor, String description) {
+
+        return new Event(calendar, user, title, writer, startDate, endDate, backgroundColor,
+            borderColor, description);
     }
 }

@@ -1,10 +1,7 @@
 package sharingcalender.calender.service.calendar.impl;
 
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +16,6 @@ import sharingcalender.calender.entity.User;
 import sharingcalender.calender.entity.UserCalendar;
 import sharingcalender.calender.entity.UserCalendar.Authority;
 import sharingcalender.calender.entity.UserGroup;
-import sharingcalender.calender.exception.UnAuthorizedException;
 import sharingcalender.calender.repository.CalendarGroupRepository;
 import sharingcalender.calender.repository.CalendarRepository;
 import sharingcalender.calender.repository.ChatMessageRepository;
@@ -29,8 +25,10 @@ import sharingcalender.calender.repository.EventRepository;
 import sharingcalender.calender.repository.UserCalendarRepository;
 import sharingcalender.calender.repository.UserGroupRepository;
 import sharingcalender.calender.repository.UserRepository;
+import sharingcalender.calender.service.ResourceValidator;
 import sharingcalender.calender.service.calendar.CalendarGroupService;
 
+//refactoring
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -47,6 +45,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatReadHistoryRepository chatReadHistoryRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ResourceValidator resourceValidator;
 
     @Transactional(readOnly = true)
     @Override
@@ -62,27 +61,34 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     @Override
     public void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, AuthenticatedUser user) {
 
-
         CalendarGroup calendarGroup = calendarGroupRepository.save(
-            new CalendarGroup(groupRegisterReq.groupName()));
+            CalendarGroup.create(groupRegisterReq.groupName()));
 
-        Calendar calendar = calendarRepository.save(new Calendar(calendarGroup));
+        Calendar calendar = createCalendarToGroup(calendarGroup);
 
-        Optional<User> userEntity = userRepository.findByUsername(user.getUsername());
+        User userEntity = resourceValidator.validateUser(user.getUsername());
 
-        if (userEntity.isEmpty()) {
-            throw new UnAuthorizedException("User Is Not Valid");
-        }
+        registerUserToGroup(calendar, userEntity, calendarGroup);
 
-        userCalendarRepository.save(
-            new UserCalendar(calendar, userEntity.get(), Authority.ADMIN));
+        createChatRoomToGroup(calendarGroup, userEntity);
+    }
 
-        userGroupRepository.save(new UserGroup(userEntity.get(), calendarGroup));
+    private Calendar createCalendarToGroup(CalendarGroup calendarGroup) {
+        Calendar calendar = calendarRepository.save(Calendar.create(calendarGroup));
+        return calendar;
+    }
 
-        ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(calendarGroup));
+    private void createChatRoomToGroup(CalendarGroup calendarGroup, User userEntity) {
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(calendarGroup));
 
         chatReadHistoryRepository.save(
-            new ChatReadHistory(chatRoom, userEntity.get(), LocalDateTime.now()));
+            ChatReadHistory.create(chatRoom, userEntity, LocalDateTime.now()));
+    }
+
+    private void registerUserToGroup(Calendar calendar, User userEntity, CalendarGroup calendarGroup) {
+        userCalendarRepository.save(UserCalendar.create(calendar, userEntity, Authority.ADMIN));
+
+        userGroupRepository.save(UserGroup.create(userEntity, calendarGroup));
     }
 
     @Override
@@ -91,42 +97,63 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
         Authority authorityForCalendar = userCalendarRepository.getAuthorityForCalendar(
             calendarGroupId, username);
 
-
-
         if (Authority.ADMIN == authorityForCalendar) {
-            userCalendarRepository.deleteUserCalendarByCalendarGroupId(calendarGroupId);
-
-            userGroupRepository.deleteByCalendarGroupId(calendarGroupId);
-
-            eventRepository.deleteEventByCalendarGroupId(calendarGroupId);
-
-            calendarRepository.deleteByCalendarGroupId(calendarGroupId);
-
-
-            chatReadHistoryRepository.deleteAllByCalendarGroupId(calendarGroupId);
-
-            chatMessageRepository.deleteAllByCalendarGroupId(calendarGroupId);
-
-            chatRoomRepository.deleteChatRoomByCalendarGroupId(calendarGroupId);
-
-            calendarGroupRepository.deleteByCalendarGroupId(calendarGroupId);
-
-
+            deleteGroupByAdmin(calendarGroupId);
         } else {
-
             //TODO 채팅룸 기록을 지워줘야한다. 메시지는 지우지 않을 것이다.
-            chatReadHistoryRepository.deleteByCalendarGroupIdAndUsername(calendarGroupId, username);
-
-            userCalendarRepository.deleteUserCalendarByMember(calendarGroupId, username);
-
-            userGroupRepository.deleteUserGroupByMember(calendarGroupId, username);
+            deleteGroupByMember(calendarGroupId, username);
         }
-
-
-
     }
 
+    private void deleteGroupByMember(long calendarGroupId, String username) {
+        deleteUserFromChatRoom(calendarGroupId, username);
 
+        deleteUserFromGroup(calendarGroupId, username);
+    }
+
+    private void deleteUserFromGroup(long calendarGroupId, String username) {
+        userCalendarRepository.deleteUserCalendarByMember(calendarGroupId, username);
+
+        userGroupRepository.deleteUserGroupByMember(calendarGroupId, username);
+    }
+
+    private void deleteUserFromChatRoom(long calendarGroupId, String username) {
+        chatReadHistoryRepository.deleteByCalendarGroupIdAndUsername(calendarGroupId, username);
+    }
+
+    private void deleteGroupByAdmin(long calendarGroupId) {
+        deleteAllUserFromGroup(calendarGroupId);
+
+        deleteCalendarAndEventsFromGroup(calendarGroupId);
+
+        deleteChatRoomFromGroup(calendarGroupId);
+
+        deleteGroup(calendarGroupId);
+    }
+
+    private void deleteGroup(long calendarGroupId) {
+        calendarGroupRepository.deleteByCalendarGroupId(calendarGroupId);
+    }
+
+    private void deleteChatRoomFromGroup(long calendarGroupId) {
+        chatReadHistoryRepository.deleteAllByCalendarGroupId(calendarGroupId);
+
+        chatMessageRepository.deleteAllByCalendarGroupId(calendarGroupId);
+
+        chatRoomRepository.deleteChatRoomByCalendarGroupId(calendarGroupId);
+    }
+
+    private void deleteCalendarAndEventsFromGroup(long calendarGroupId) {
+        eventRepository.deleteEventByCalendarGroupId(calendarGroupId);
+
+        calendarRepository.deleteByCalendarGroupId(calendarGroupId);
+    }
+
+    private void deleteAllUserFromGroup(long calendarGroupId) {
+        userCalendarRepository.deleteUserCalendarByCalendarGroupId(calendarGroupId);
+
+        userGroupRepository.deleteByCalendarGroupId(calendarGroupId);
+    }
 
 
 }

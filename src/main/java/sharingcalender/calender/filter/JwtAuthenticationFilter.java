@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import sharingcalender.calender.dto.AuthenticatedUser;
 import sharingcalender.calender.jwt.JwtUtil;
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
@@ -25,8 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("requestURI = " + request.getRequestURI());
-        System.out.println("request.getRequestURL() = " + request.getRequestURL());
+
+        log.debug("request : URI = {}, METHOD = {} ", request.getRequestURI(), request.getMethod());
 
         if (request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
             filterChain.doFilter(request, response);

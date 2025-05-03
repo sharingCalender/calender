@@ -23,7 +23,11 @@ public class Calendar {
     @JoinColumn(name = "calendar_group_id")
     private CalendarGroup calendarGroup;
 
-    public Calendar(CalendarGroup calendarGroup) {
+    private Calendar(CalendarGroup calendarGroup) {
         this.calendarGroup = calendarGroup;
+    }
+
+    public static Calendar create(CalendarGroup calendarGroup) {
+        return new Calendar(calendarGroup);
     }
 }

@@ -11,16 +11,11 @@ spring:
 
     import: optional:configserver:http://${username}:${password}@localhost:9000
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: localRedis
-
-
 websocket:
   url: http://localhost:8580
 
+logging:
+  config: classpath:logback-dev.xml
 ---
 
 spring:
@@ -32,5 +27,6 @@ spring:
     import: "aws-secretsmanager:/secret/calendar,optional:configserver:http://${secrets.username}:${secrets.password}@config-server:9000"
 
 
-
+logging:
+  config: classpath:logback-live.xml
 

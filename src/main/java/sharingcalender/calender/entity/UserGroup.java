@@ -27,8 +27,12 @@ public class UserGroup {
     @JoinColumn(name = "calendar_group_id")
     private CalendarGroup calendarGroup;
 
-    public UserGroup(User user, CalendarGroup calendarGroup) {
+    private UserGroup(User user, CalendarGroup calendarGroup) {
         this.user = user;
         this.calendarGroup = calendarGroup;
+    }
+
+    public static UserGroup create(User user, CalendarGroup calendarGroup) {
+        return new UserGroup(user, calendarGroup);
     }
 }

@@ -31,9 +31,15 @@ public class GroupInvitation {
 
     private String usernameFrom;
 
-    public GroupInvitation(User user, CalendarGroup calendarGroup, String usernameFrom) {
+    private GroupInvitation(User user, CalendarGroup calendarGroup, String usernameFrom) {
         this.user = user;
         this.calendarGroup = calendarGroup;
         this.usernameFrom = usernameFrom;
+    }
+
+    public static GroupInvitation create(User user, CalendarGroup calendarGroup,
+        String usernameFrom) {
+
+        return new GroupInvitation(user, calendarGroup, usernameFrom);
     }
 }

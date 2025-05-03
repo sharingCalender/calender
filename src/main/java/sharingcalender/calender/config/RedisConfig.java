@@ -34,8 +34,19 @@ public class RedisConfig {
     }
 
     // publish 객체
-    @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    @Bean(name = "redisWriteTemplate")
+    public StringRedisTemplate redisWriteTemplate(RedisConnectionFactory redisConnectionFactory) {
+
+        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate(redisConnectionFactory);
+
+        stringRedisTemplate.setEnableTransactionSupport(true);
+
+        return stringRedisTemplate;
+    }
+
+    @Bean(name = "redisReadTemplate")
+    public StringRedisTemplate redisReadTemplate(RedisConnectionFactory redisConnectionFactory) {
+
         return new StringRedisTemplate(redisConnectionFactory);
     }
 

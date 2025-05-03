@@ -34,7 +34,7 @@ public class UserCalendar {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-    public UserCalendar(Calendar calendar, User user, Authority authority) {
+    private UserCalendar(Calendar calendar, User user, Authority authority) {
         this.calendar = calendar;
         this.user = user;
         this.authority = authority;
@@ -44,6 +44,10 @@ public class UserCalendar {
     public enum Authority {
         ADMIN,
         MEMBER;
+    }
+
+    public static UserCalendar create(Calendar calendar, User user, Authority authority) {
+        return new UserCalendar(calendar, user, authority);
     }
 
 }

@@ -35,7 +35,7 @@ public class User {
 
     private String provider;
 
-    public User(String name, String email, LocalDateTime createdAt, String mobile, String username,
+    private User(String name, String email, LocalDateTime createdAt, String mobile, String username,
         String password, String provider) {
         this.name = name;
         this.email = email;
@@ -44,5 +44,12 @@ public class User {
         this.username = username;
         this.password = password;
         this.provider = provider;
+    }
+
+    public static User create(String name, String email, LocalDateTime createdAt, String mobile,
+        String username,
+        String password, String provider) {
+
+        return new User(name, email, createdAt, mobile, username, password, provider);
     }
 }

@@ -35,11 +35,13 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistException("Username Already Exists");
         }
 
-        User user = new User(userRegisterRequestDto.name(), userRegisterRequestDto.email(),
+        User user = User.create(
+            userRegisterRequestDto.name(), userRegisterRequestDto.email(),
             LocalDateTime.now(),
             userRegisterRequestDto.mobile(), userRegisterRequestDto.username(),
             passwordEncoder.encode(userRegisterRequestDto.password()),
-            userRegisterRequestDto.provider());
+            userRegisterRequestDto.provider()
+        );
 
         userRepository.save(user);
 
@@ -69,7 +71,7 @@ public class UserServiceImpl implements UserService {
             return true;
         }
 
-        User user = new User(oAuthUser.name(), oAuthUser.email(), LocalDateTime.now(),
+        User user = User.create(oAuthUser.name(), oAuthUser.email(), LocalDateTime.now(),
             oAuthUser.mobile(), username, oAuthUser.password(), oAuthUser.provider());
 
         userRepository.save(user);

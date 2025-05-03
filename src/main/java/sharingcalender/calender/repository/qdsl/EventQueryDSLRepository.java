@@ -9,7 +9,8 @@ public interface EventQueryDSLRepository {
     void deleteEventByCalendarGroupId(long calendarGroupId);
 
     List<EventInfoResponseDto> getAllEventsInCalendarByCalendarGroupId(long calendarGroupId,
-        String username, LocalDateTime start, LocalDateTime end);
+        LocalDateTime start, LocalDateTime end);
 
 
+    List<EventInfoResponseDto> getAllEventsInCalendarByEventId(List<Long> eventIds);
 }

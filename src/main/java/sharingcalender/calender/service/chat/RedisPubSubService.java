@@ -3,6 +3,8 @@ package sharingcalender.calender.service.chat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -12,14 +14,15 @@ import sharingcalender.calender.dto.chat.ChatMessageDto;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RedisPubSubService implements MessageListener {
 
-    private final StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate redisReadTemplate;
     private final SimpMessageSendingOperations messageTemplate;
     private final ObjectMapper objectMapper;
 
     public void publish(String channel, String message) {
-        stringRedisTemplate.convertAndSend(channel, message);
+        redisReadTemplate.convertAndSend(channel, message);
     }
 
     @Override
@@ -31,6 +34,8 @@ public class RedisPubSubService implements MessageListener {
             messageTemplate.convertAndSend("/topic/" + chatMessageDto.chatRoomId(), chatMessageDto);
 
         } catch (JsonProcessingException e) {
+            log.error("Parsing Exception When Publishing from Redis Broker :  ", e);
+
             throw new RuntimeException(e);
         }
 

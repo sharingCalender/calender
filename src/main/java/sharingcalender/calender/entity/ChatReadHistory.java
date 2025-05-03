@@ -31,9 +31,13 @@ public class ChatReadHistory {
 
     private LocalDateTime lastDate;
 
-    public ChatReadHistory(ChatRoom chatRoom, User user, LocalDateTime lastDate) {
+    private ChatReadHistory(ChatRoom chatRoom, User user, LocalDateTime lastDate) {
         this.chatRoom = chatRoom;
         this.user = user;
         this.lastDate = lastDate;
+    }
+
+    public static ChatReadHistory create(ChatRoom chatRoom, User user, LocalDateTime lastDate) {
+        return new ChatReadHistory(chatRoom, user, lastDate);
     }
 }

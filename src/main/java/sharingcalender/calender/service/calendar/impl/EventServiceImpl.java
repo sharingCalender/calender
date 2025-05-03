@@ -3,7 +3,7 @@ package sharingcalender.calender.service.calendar.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +15,12 @@ import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
 import sharingcalender.calender.entity.Calendar;
 import sharingcalender.calender.entity.Event;
 import sharingcalender.calender.entity.User;
-import sharingcalender.calender.exception.ResourceNotFoundException;
-import sharingcalender.calender.repository.CalendarRepository;
+import sharingcalender.calender.repository.CalendarEventIdRepository;
 import sharingcalender.calender.repository.EventRepository;
-import sharingcalender.calender.repository.UserRepository;
+import sharingcalender.calender.service.ResourceValidator;
 import sharingcalender.calender.service.calendar.EventService;
 
+// refactoring
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,74 +28,95 @@ public class EventServiceImpl  implements EventService{
 
 
     private final EventRepository eventRepository;
-    private final CalendarRepository calendarRepository;
-    private final UserRepository userRepository;
+    private final CalendarEventIdRepository eventIdRepository;
+    private final ResourceValidator resourceValidator;
 
     @Override
-    public List<EventInfoResponseDto> getAllEventsInCalendar(long calendarGroupId, String username,String start, String end) {
+    public List<EventInfoResponseDto> getEventsInCalendar(long calendarGroupId, String username,String start, String end) {
         LocalDateTime startDateTime = convertStringToLocalDateTIme(start);
         LocalDateTime endDateTime = convertStringToLocalDateTIme(end);
 
-        return eventRepository.getAllEventsInCalendarByCalendarGroupId(calendarGroupId, username,
-            startDateTime, endDateTime);
+        return getEventsInCalendar(calendarGroupId, startDateTime, endDateTime);
+    }
+
+    private List<EventInfoResponseDto> getEventsInCalendar(long calendarGroupId, LocalDateTime start,LocalDateTime end) {
+        List<Long> eventIds = eventIdRepository.readEventIds(calendarGroupId, start);
+
+        return eventIds.isEmpty()?
+            getEventsFromDbAndSaveIdsInRedis(calendarGroupId, start, end)
+            : eventRepository.getAllEventsInCalendarByEventId(eventIds);
+
+    }
+
+    private List<EventInfoResponseDto> getEventsFromDbAndSaveIdsInRedis(long calendarGroupId,
+        LocalDateTime start, LocalDateTime end) {
+
+        List<EventInfoResponseDto> events = eventRepository.getAllEventsInCalendarByCalendarGroupId(
+            calendarGroupId, start, end);
+
+        eventIdRepository.add(calendarGroupId, start, events);
+        return events;
     }
 
     @Override
     public long registerEvent(EventRegisterRequestDto eventRegisterReq, String username) {
 
-        Optional<Calendar> calendarEntity = calendarRepository.findById(
-            eventRegisterReq.calendarId());
+        Calendar calendarEntity = resourceValidator.validateCalendar(eventRegisterReq.calendarId());
 
-        if (calendarEntity.isEmpty()) {
-            throw new ResourceNotFoundException("Calendar Is Not Found");
-        }
+        User userEntity = resourceValidator.validateUser(username);
 
-        Optional<User> userEntity = userRepository.findByUsername(username);
-
-        if (userEntity.isEmpty()) {
-            throw new ResourceNotFoundException("User Is Not Found");
-        }
-
-        Event eventEntity = new Event(calendarEntity.get(), userEntity.get(), eventRegisterReq.title(),
-            eventRegisterReq.writer(), eventRegisterReq.start(), eventRegisterReq.end(),
-            eventRegisterReq.backgroundColor(), eventRegisterReq.borderColor(),
-            eventRegisterReq.description());
-
-        Event savedEvent = eventRepository.save(eventEntity);
+        Event savedEvent = registerEventInDb(eventRegisterReq, calendarEntity, userEntity);
 
         return savedEvent.getEventId();
 
     }
 
-    public void modifyEvent(EventModifyRequestDto eventModifyReq) {
-        Optional<Event> eventEntity = eventRepository.findById(eventModifyReq.eventId());
+    private Event registerEventInDb(EventRegisterRequestDto eventRegisterReq, Calendar calendarEntity,
+        User userEntity) {
 
-        if (eventEntity.isEmpty()) {
-            throw new ResourceNotFoundException("Can Not Find Event");
-        }
-        Event event = eventEntity.get();
+        Event eventEntity = Event.create(
+            calendarEntity, userEntity,
+            eventRegisterReq.title(),
+            eventRegisterReq.writer(), eventRegisterReq.start(), eventRegisterReq.end(),
+            eventRegisterReq.backgroundColor(), eventRegisterReq.borderColor(),
+            eventRegisterReq.description()
+        );
+
+        Event savedEvent = eventRepository.save(eventEntity);
+
+        deleteGroupEventIdsInRedis(eventRegisterReq.calendarGroupId());
+
+        return savedEvent;
+    }
+
+
+    @Override
+    public void deleteEvent(EventDeleteRequestDto eventDeleteReq) {
+        eventRepository.deleteById(eventDeleteReq.eventId());
+
+        deleteGroupEventIdsInRedis(eventDeleteReq.calendarGroupId());
+    }
+
+    private void deleteGroupEventIdsInRedis(long eventRegisterReq) {
+        eventIdRepository.delete(eventRegisterReq);
+    }
+
+    public void modifyEvent(EventModifyRequestDto eventModifyReq) {
+
+        Event event = resourceValidator.validateEvent(eventModifyReq.eventId());
+
         event.setTitle(eventModifyReq.title());
         event.setStart(eventModifyReq.start());
         event.setEnd(eventModifyReq.end());
         event.setDescription(eventModifyReq.description());
-
     }
 
+    @Override
     public void changeEventColor(EventChangeColorRequestDto eventChangeColorReq) {
-        Optional<Event> eventEntity = eventRepository.findById(eventChangeColorReq.eventId());
-
-        if (eventEntity.isEmpty()) {
-            throw new ResourceNotFoundException("Can Not Find Event");
-        }
-        Event event = eventEntity.get();
+        Event event = resourceValidator.validateEvent(eventChangeColorReq.eventId());
 
         event.setBackgroundColor(eventChangeColorReq.backgroundColor());
         event.setBorderColor(eventChangeColorReq.borderColor());
-    }
-
-    public void deleteEvent(EventDeleteRequestDto eventDeleteReq) {
-        eventRepository.deleteById(eventDeleteReq.eventId());
-
     }
 
     private LocalDateTime convertStringToLocalDateTIme(String dateTime) {

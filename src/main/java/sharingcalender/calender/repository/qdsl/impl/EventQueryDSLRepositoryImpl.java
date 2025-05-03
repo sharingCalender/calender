@@ -3,7 +3,6 @@ package sharingcalender.calender.repository.qdsl.impl;
 
 import static sharingcalender.calender.entity.QCalendar.calendar;
 import static sharingcalender.calender.entity.QEvent.event;
-import static sharingcalender.calender.entity.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -11,7 +10,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import sharingcalender.calender.dto.calendar.request.EventModifyRequestDto;
 import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
 import sharingcalender.calender.repository.qdsl.EventQueryDSLRepository;
 
@@ -35,7 +33,7 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
     }
 
     public List<EventInfoResponseDto> getAllEventsInCalendarByCalendarGroupId(long calendarGroupId,
-        String username, LocalDateTime start, LocalDateTime end) {
+        LocalDateTime start, LocalDateTime end) {
 
         return jpaQueryFactory
             .select(Projections.constructor(EventInfoResponseDto.class,
@@ -54,15 +52,37 @@ public class EventQueryDSLRepositoryImpl implements EventQueryDSLRepository {
             .where
                 (
                     event.calendar.calendarId.eq
-                        (
-                        JPAExpressions
-                            .select(calendar.calendarId)
-                            .from(calendar)
-                            .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
-                        )
+                            (
+                                JPAExpressions
+                                    .select(calendar.calendarId)
+                                    .from(calendar)
+                                    .where(calendar.calendarGroup.calendarGroupId.eq(calendarGroupId))
+                            )
                         .and(event.start.lt(end))
                         .and(event.end.goe(start))
                 )
+            .fetch();
+    }
+
+
+    public List<EventInfoResponseDto> getAllEventsInCalendarByEventId(List<Long> eventIds) {
+
+        return jpaQueryFactory
+            .select(Projections.constructor(EventInfoResponseDto.class,
+                event.eventId,
+                event.calendar.calendarId,
+                event.user.name,
+                event.title,
+                event.start,
+                event.end,
+                event.backgroundColor,
+                event.borderColor,
+                event.description,
+                event.writer
+            ))
+            .from(event)
+            .where
+                (event.eventId.in(eventIds))
             .fetch();
     }
 

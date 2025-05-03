@@ -21,7 +21,11 @@ public class CalendarGroup {
     @Column(length = 30)
     private String groupName;
 
-    public CalendarGroup(String groupName) {
+    private CalendarGroup(String groupName) {
         this.groupName = groupName;
+    }
+
+    public static CalendarGroup create(String groupName) {
+        return new CalendarGroup(groupName);
     }
 }

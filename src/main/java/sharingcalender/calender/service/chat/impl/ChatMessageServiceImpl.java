@@ -42,7 +42,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         }
 
         chatMessageRepository.save(
-            new ChatMessage(chatRoom.get(), user.get(), chatMessageDto.message(),
+            ChatMessage.create(chatRoom.get(), user.get(), chatMessageDto.message(),
                 LocalDateTime.now()));
     }
 

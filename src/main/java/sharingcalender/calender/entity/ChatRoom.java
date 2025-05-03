@@ -25,7 +25,12 @@ public class ChatRoom {
     @JoinColumn(name = "calendar_group_id")
     private CalendarGroup calendarGroup;
 
-    public ChatRoom(CalendarGroup calendarGroup) {
+    private ChatRoom(CalendarGroup calendarGroup) {
         this.calendarGroup = calendarGroup;
     }
+
+    public static ChatRoom create(CalendarGroup calendarGroup) {
+        return new ChatRoom(calendarGroup);
+    }
+
 }

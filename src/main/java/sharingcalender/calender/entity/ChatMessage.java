@@ -34,10 +34,15 @@ public class ChatMessage {
 
     private LocalDateTime messageDate;
 
-    public ChatMessage(ChatRoom chatRoom, User user, String content, LocalDateTime messageDate) {
+    private ChatMessage(ChatRoom chatRoom, User user, String content, LocalDateTime messageDate) {
         this.chatRoom = chatRoom;
         this.user = user;
         this.content = content;
         this.messageDate = messageDate;
+    }
+
+    public static ChatMessage create(ChatRoom chatRoom, User user, String content,
+        LocalDateTime messageDate) {
+        return new ChatMessage(chatRoom, user, content, messageDate);
     }
 }

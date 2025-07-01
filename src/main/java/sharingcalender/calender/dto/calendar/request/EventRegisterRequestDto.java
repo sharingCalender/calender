@@ -24,5 +24,7 @@ public record EventRegisterRequestDto (
     @NotBlank
     String writer,
     @Min(0L)
-    long calendarGroupId
+    long calendarGroupId,
+    @NotBlank
+    String groupName
 ){}

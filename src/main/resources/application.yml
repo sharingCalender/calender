@@ -10,12 +10,17 @@ spring:
       on-profile: dev
 
     import: optional:configserver:http://${username}:${password}@localhost:9000
-
+  kafka:
+    bootstrap-servers: localhost:9092
 websocket:
   url: http://localhost:8580
 
 logging:
   config: classpath:logback-dev.xml
+
+mailgun:
+  api-key: ${mailgun.api-key}
+  url: https://api.mailgun.net/v3
 ---
 
 spring:

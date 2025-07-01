@@ -2,12 +2,14 @@ package sharingcalender.calender.service.calendar.impl;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sharingcalender.calender.dto.AuthenticatedUser;
 import sharingcalender.calender.dto.calendar.request.CalendarGroupRegisterRequestDto;
 import sharingcalender.calender.dto.calendar.response.CalendarGroupListResponseDto;
+import sharingcalender.calender.dto.user.response.UserEmailSendingInfoResponseDto;
 import sharingcalender.calender.entity.Calendar;
 import sharingcalender.calender.entity.CalendarGroup;
 import sharingcalender.calender.entity.ChatReadHistory;
@@ -46,6 +48,8 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     private final ChatReadHistoryRepository chatReadHistoryRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ResourceValidator resourceValidator;
+
+
 
     @Transactional(readOnly = true)
     @Override

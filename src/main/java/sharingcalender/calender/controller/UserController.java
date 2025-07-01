@@ -62,7 +62,7 @@ public class UserController {
 
     @PostMapping("/oauth/isExist")
     public ResponseEntity<Void> oauthUserIsExist(
-        @RequestBody OAuthUserIsExistRequestDto oAuthUserIsExistRequestDto,
+        @RequestBody @Valid OAuthUserIsExistRequestDto oAuthUserIsExistRequestDto,
         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {

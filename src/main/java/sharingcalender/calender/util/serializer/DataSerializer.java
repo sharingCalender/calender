@@ -31,6 +31,20 @@ public class DataSerializer {
         }
     }
 
+    public static <T> T deserialize(String data, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(data, clazz);
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON Parsing Exception When deserializing data={}, clazz ={}", data, clazz);
+            return null;
+        }
+    }
+
+    public static <T> T deserialize(Object data,Class<T> clazz){
+        return objectMapper.convertValue(data, clazz);
+    }
+
     public static String serialize(Object object) {
 
         try {

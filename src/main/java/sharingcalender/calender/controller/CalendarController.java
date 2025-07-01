@@ -1,6 +1,7 @@
 package sharingcalender.calender.controller;
 
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,7 +57,7 @@ public class CalendarController {
 
     @PostMapping("/group")
     public ResponseEntity<Void> registerGroup(
-        @RequestBody CalendarGroupRegisterRequestDto groupRegisterReq, BindingResult bindingResult,
+        @RequestBody @Valid CalendarGroupRegisterRequestDto groupRegisterReq, BindingResult bindingResult,
         @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
@@ -70,7 +71,7 @@ public class CalendarController {
 
     @DeleteMapping("/group")
     public ResponseEntity<Void> deleteGroup(
-        @RequestBody CalendarGroupDeleteRequestDto calendarGroupDeleteReq,
+        @RequestBody @Valid CalendarGroupDeleteRequestDto calendarGroupDeleteReq,
         BindingResult bindingResult, @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
@@ -101,7 +102,7 @@ public class CalendarController {
 
     @PostMapping("/event")
     public ResponseEntity<EventRegisterResponseDto> registerEvent(
-        @RequestBody EventRegisterRequestDto eventRegisterReq,
+        @RequestBody @Valid EventRegisterRequestDto eventRegisterReq,
         BindingResult bindingResult, @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
@@ -115,7 +116,7 @@ public class CalendarController {
     }
 
     @PatchMapping("/event")
-    public ResponseEntity<Void> modifyEvent(@RequestBody EventModifyRequestDto eventModifyReq,
+    public ResponseEntity<Void> modifyEvent(@RequestBody @Valid EventModifyRequestDto eventModifyReq,
         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -129,7 +130,7 @@ public class CalendarController {
 
     @PatchMapping("/event/color")
     public ResponseEntity<Void> changeEventColor(
-        @RequestBody EventChangeColorRequestDto eventChangeColorReq, BindingResult bindingResult) {
+        @RequestBody @Valid EventChangeColorRequestDto eventChangeColorReq, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             throw new BadRequestException("Request Body Is Not Valid");
@@ -141,7 +142,7 @@ public class CalendarController {
     }
 
     @DeleteMapping("/event")
-    public ResponseEntity<Void> deleteEvent(@RequestBody EventDeleteRequestDto eventDeleteReq,
+    public ResponseEntity<Void> deleteEvent(@RequestBody @Valid EventDeleteRequestDto eventDeleteReq,
         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -164,7 +165,7 @@ public class CalendarController {
 
     @PostMapping("/group/invitation")
     public ResponseEntity<Void> saveGroupInvitation(
-        @RequestBody GroupInvitationSaveRequestDto groupInvitationSaveReq,
+        @RequestBody @Valid GroupInvitationSaveRequestDto groupInvitationSaveReq,
         BindingResult bindingResult, @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
@@ -178,8 +179,8 @@ public class CalendarController {
     }
 
     @PostMapping("/group/invitation/accept")
-    public ResponseEntity<Void> saveWhenInvitationAccepted(@RequestBody
-    GroupInvitationAcceptRequestDto groupInvitationAcceptReq, BindingResult bindingResult,
+    public ResponseEntity<Void> saveWhenInvitationAccepted(
+        @RequestBody @Valid GroupInvitationAcceptRequestDto groupInvitationAcceptReq, BindingResult bindingResult,
         @AuthenticationPrincipal AuthenticatedUser user) {
 
         if (bindingResult.hasErrors()) {
@@ -195,7 +196,7 @@ public class CalendarController {
 
     @DeleteMapping("/group/invitation")
     public ResponseEntity<Void> deleteGroupInvitation(
-        @RequestBody GroupInvitationDelRequestDto groupInvitationDelReq,
+        @RequestBody @Valid GroupInvitationDelRequestDto groupInvitationDelReq,
         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {

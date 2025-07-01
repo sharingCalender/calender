@@ -3,7 +3,6 @@ package sharingcalender.calender.service.calendar.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +14,9 @@ import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
 import sharingcalender.calender.entity.Calendar;
 import sharingcalender.calender.entity.Event;
 import sharingcalender.calender.entity.User;
+import sharingcalender.calender.messageevent.MessageEventType;
+import sharingcalender.calender.messageevent.payload.ScheduleCreatedEventPayload;
+import sharingcalender.calender.outbox.OutboxEventPublisher;
 import sharingcalender.calender.repository.CalendarEventIdRepository;
 import sharingcalender.calender.repository.EventRepository;
 import sharingcalender.calender.service.ResourceValidator;
@@ -30,7 +32,7 @@ public class EventServiceImpl  implements EventService{
     private final EventRepository eventRepository;
     private final CalendarEventIdRepository eventIdRepository;
     private final ResourceValidator resourceValidator;
-
+    private final OutboxEventPublisher outboxEventPublisher;
     @Override
     public List<EventInfoResponseDto> getEventsInCalendar(long calendarGroupId, String username,String start, String end) {
         LocalDateTime startDateTime = convertStringToLocalDateTIme(start);
@@ -66,6 +68,12 @@ public class EventServiceImpl  implements EventService{
         User userEntity = resourceValidator.validateUser(username);
 
         Event savedEvent = registerEventInDb(eventRegisterReq, calendarEntity, userEntity);
+
+        outboxEventPublisher.publish(
+            MessageEventType.SCHEDULE_CREATED,
+            ScheduleCreatedEventPayload.create(eventRegisterReq.calendarGroupId(),
+                eventRegisterReq.groupName(), eventRegisterReq.title())
+        );
 
         return savedEvent.getEventId();
 

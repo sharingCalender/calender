@@ -19,7 +19,7 @@ logging:
   config: classpath:logback-dev.xml
 
 mailgun:
-  api-key: ${mailgun.api-key}
+  api-key: ${mailgun.api.key}
   url: https://api.mailgun.net/v3
 ---
 

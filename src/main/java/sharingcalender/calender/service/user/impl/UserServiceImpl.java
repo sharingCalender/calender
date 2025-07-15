@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
-            new AuthenticatedUser(userRegisterRequestDto.username(), "USER"));
+            userRegisterRequestDto.username());
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         calendarGroupService.registerGroup(new CalendarGroupRegisterRequestDto(MY_CALENDAR),
-            new AuthenticatedUser(username, "USER"));
+            username);
 
         return false;
     }

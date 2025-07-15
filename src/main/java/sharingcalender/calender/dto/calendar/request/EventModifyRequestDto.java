@@ -15,5 +15,7 @@ public record EventModifyRequestDto (
     @NotBlank
     LocalDateTime end,
     @NotNull
-    String description
+    String description,
+    @Min(0L)
+    long calendarGroupId
 ){}

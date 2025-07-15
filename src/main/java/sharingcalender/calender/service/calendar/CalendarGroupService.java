@@ -7,7 +7,7 @@ import sharingcalender.calender.dto.calendar.response.CalendarGroupListResponseD
 
 public interface CalendarGroupService {
 
-    void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, AuthenticatedUser user);
+    void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, String username);
 
     void deleteGroup(long calendarGroupId,String username);
 

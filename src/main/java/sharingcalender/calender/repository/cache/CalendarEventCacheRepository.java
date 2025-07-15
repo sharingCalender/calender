@@ -1,25 +1,25 @@
-package sharingcalender.calender.repository;
+package sharingcalender.calender.repository.cache;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
-import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
+import sharingcalender.calender.applicationevent.EvictCalendarCacheEvent;
+import sharingcalender.calender.dto.calendar.response.EventListResponseDto;
 import sharingcalender.calender.util.serializer.DataSerializer;
 
 @Repository
-public class CalendarEventIdRepository {
+public class CalendarEventCacheRepository {
 
 
     private final StringRedisTemplate redisWriteTemplate;
     private final StringRedisTemplate redisReadTemplate;
 
 
-    public CalendarEventIdRepository(
+    public CalendarEventCacheRepository(
         @Qualifier("redisWriteTemplate") StringRedisTemplate redisWriteTemplate,
         @Qualifier("redisReadTemplate") StringRedisTemplate redisReadTemplate) {
 
@@ -30,51 +30,42 @@ public class CalendarEventIdRepository {
     private static final String KEY_PREFIX = "calendar-group";
     private static final String DELIMITER = "::";
 
-    public void add(String key, String date, List<Long> eventIds) {
+    public void add(String key, String date, EventListResponseDto events) {
 
-        if (eventIds.isEmpty()) {
-            return;
-        }
-
-        redisWriteTemplate.opsForHash().put(key, date, DataSerializer.serialize(eventIds));
-        redisWriteTemplate.expire(key, Duration.ofHours(1L));
+        redisWriteTemplate.opsForHash().put(key, date, DataSerializer.serialize(events));
+        redisWriteTemplate.expire(key, Duration.ofMinutes(15));
 
     }
 
-    public void add(long calendarGroupId, LocalDateTime start, List<EventInfoResponseDto> events) {
+    public void add(long calendarGroupId, LocalDateTime start, EventListResponseDto events) {
 
-        List<Long> eventIds = events.stream().map(EventInfoResponseDto::id).toList();
-
-        if (eventIds.isEmpty()) {
-            return;
-        }
-        add(generateKey(calendarGroupId), getDate(start), eventIds);
+        add(generateKey(calendarGroupId), getDate(start), events);
     }
 
-    public void delete(long calendarGroupId) {
-        redisWriteTemplate.delete(generateKey(calendarGroupId));
+    public void delete(EvictCalendarCacheEvent evictCalendarCache) {
+        redisWriteTemplate.delete(generateKey(evictCalendarCache.calendarGroupId()));
     }
 
 
 
-    public List<Long> readEventIds(String key, String date) {
+    public EventListResponseDto readEvents(String key, String date) {
 
         if (isExpired(key)) {
-            redisReadTemplate.expire(key, Duration.ofHours(1L));
+            redisReadTemplate.expire(key, Duration.ofMinutes(15));
         }
         return DataSerializer.deserialize((String) redisReadTemplate.opsForHash().get(key, date),
-            new TypeReference<List<Long>>() {});
+            new TypeReference<EventListResponseDto>() {});
     }
 
-    public List<Long> readEventIds(long calendarGroupId, LocalDateTime start) {
+    public EventListResponseDto readEvents(long calendarGroupId, LocalDateTime start) {
         String key = generateKey(calendarGroupId);
         String date = getDate(start);
 
         if (hasKey(key,date)) {
-            return readEventIds(key, date);
+            return readEvents(key, date);
         }
 
-        return List.of();
+        return null;
     }
 
 

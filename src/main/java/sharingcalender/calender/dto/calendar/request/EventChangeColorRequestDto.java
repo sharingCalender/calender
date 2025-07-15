@@ -9,5 +9,7 @@ public record EventChangeColorRequestDto (
     @NotBlank
     String backgroundColor,
     @NotBlank
-    String borderColor
+    String borderColor,
+    @Min(0L)
+    long calendarGroupId
 ){}

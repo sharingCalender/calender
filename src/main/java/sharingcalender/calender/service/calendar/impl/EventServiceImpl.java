@@ -41,6 +41,7 @@ public class EventServiceImpl  implements EventService{
     private final CircuitBreakerRegistry circuitBreakerRegistry;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Transactional(readOnly = true)
     @Override
     public EventListResponseDto getEventsInCalendar(long calendarGroupId, String username,
         String start, String end){

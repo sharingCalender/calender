@@ -56,37 +56,5 @@ public class KafkaConfig {
         return Executors.newSingleThreadScheduledExecutor();
     }
 
-    @Bean
-    public ConsumerFactory<String,String> consumerFactory(){
-        Map<String, Object> configProps = new HashMap<>();
 
-        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,50);
-
-        return new DefaultKafkaConsumerFactory<>(configProps);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
-        ConsumerFactory<String, String> consumerFactory, DefaultErrorHandler errorHandler) {
-
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-
-        factory.setConsumerFactory(consumerFactory);
-        factory.getContainerProperties().setAckMode(AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
-    }
-
-    @Bean
-    public DefaultErrorHandler errorHandler(KafkaTemplate<String,String> messageRelayKafkaTemplate){
-        DeadLetterPublishingRecoverer deadLetterPublishingRecoverer = new DeadLetterPublishingRecoverer(
-            messageRelayKafkaTemplate,
-            (rec, ex) -> new TopicPartition(rec.topic() + ".DLT", rec.partition()));
-        FixedBackOff fixedBackOff = new FixedBackOff(1000L, 2);
-
-        return new DefaultErrorHandler(deadLetterPublishingRecoverer, fixedBackOff);
-    }
 }

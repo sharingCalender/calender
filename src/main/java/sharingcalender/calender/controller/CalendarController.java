@@ -26,8 +26,7 @@ import sharingcalender.calender.dto.calendar.request.GroupInvitationAcceptReques
 import sharingcalender.calender.dto.calendar.request.GroupInvitationDelRequestDto;
 import sharingcalender.calender.dto.calendar.request.GroupInvitationSaveRequestDto;
 import sharingcalender.calender.dto.calendar.response.CalendarGroupListResponseDto;
-import sharingcalender.calender.dto.calendar.response.CalendarLookUpResponseDto;
-import sharingcalender.calender.dto.calendar.response.EventInfoResponseDto;
+import sharingcalender.calender.dto.calendar.response.EventListResponseDto;
 import sharingcalender.calender.dto.calendar.response.EventRegisterResponseDto;
 import sharingcalender.calender.dto.calendar.response.GroupInvitationInfoListResponse;
 import sharingcalender.calender.exception.BadRequestException;
@@ -63,7 +62,7 @@ public class CalendarController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        calendarGroupService.registerGroup(groupRegisterReq, user);
+        calendarGroupService.registerGroup(groupRegisterReq, user.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -84,7 +83,7 @@ public class CalendarController {
     }
 
     @GetMapping("/event")
-    public ResponseEntity<CalendarLookUpResponseDto> getAllEventsInCalendar(
+    public ResponseEntity<EventListResponseDto> getAllEventsInCalendar(
         @RequestParam("calendarGroupId") long calendarGroupId, @RequestParam("start") String start,
         @RequestParam("end") String end, @AuthenticationPrincipal AuthenticatedUser user) {
 
@@ -92,11 +91,10 @@ public class CalendarController {
             throw new BadRequestException("Request Body Is Not Valid");
         }
 
-        List<EventInfoResponseDto> allEventsInCalendar = eventService.getEventsInCalendar(
+        EventListResponseDto eventsInCalendar = eventService.getEventsInCalendar(
             calendarGroupId, user.getUsername(), start, end);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-            new CalendarLookUpResponseDto(allEventsInCalendar));
+        return ResponseEntity.status(HttpStatus.OK).body(eventsInCalendar);
     }
 
     @PostMapping("/event")

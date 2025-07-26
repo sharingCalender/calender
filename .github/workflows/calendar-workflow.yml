@@ -7,7 +7,6 @@ on:
       - 'v*.*.*'
 #    branches:
 #      - develop # develop 브랜치에 푸쉬될 때 실행되도록 한다.
-
 #  pull_request:
 #    branches:
 #      - develop
@@ -37,7 +36,6 @@ jobs:
         with:
           images: ${{secrets.DOCKERHUB_USERNAME}}/calendar
           tags: type=ref,event=tag
-
 
       - name: Build and Push
         uses: docker/build-push-action@v6 # 이미지를 빌드하고 docker hub 에 푸쉬한다.

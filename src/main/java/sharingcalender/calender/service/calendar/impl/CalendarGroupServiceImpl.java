@@ -3,8 +3,11 @@ package sharingcalender.calender.service.calendar.impl;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sharingcalender.calender.config.RedisCacheConfig;
 import sharingcalender.calender.dto.AuthenticatedUser;
 import sharingcalender.calender.dto.calendar.request.CalendarGroupRegisterRequestDto;
 import sharingcalender.calender.dto.calendar.response.CalendarGroupListResponseDto;
@@ -48,6 +51,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     private final ResourceValidator resourceValidator;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = RedisCacheConfig.groupCacheName,key = "#p0")
     @Override
     public CalendarGroupListResponseDto getGroupInfoList(String username) {
 
@@ -58,15 +62,16 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     }
 
+    @CacheEvict(value = RedisCacheConfig.groupCacheName, key = "#p1")
     @Override
-    public void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, AuthenticatedUser user) {
+    public void registerGroup(CalendarGroupRegisterRequestDto groupRegisterReq, String username) {
 
         CalendarGroup calendarGroup = calendarGroupRepository.save(
             CalendarGroup.create(groupRegisterReq.groupName()));
 
         Calendar calendar = createCalendarToGroup(calendarGroup);
 
-        User userEntity = resourceValidator.validateUser(user.getUsername());
+        User userEntity = resourceValidator.validateUser(username);
 
         registerUserToGroup(calendar, userEntity, calendarGroup);
 
@@ -91,8 +96,9 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
         userGroupRepository.save(UserGroup.create(userEntity, calendarGroup));
     }
 
+    @CacheEvict(value = RedisCacheConfig.groupCacheName, key = "#p1")
     @Override
-    public void deleteGroup(long calendarGroupId,String username) {
+    public void deleteGroup(long calendarGroupId, String username) {
 
         Authority authorityForCalendar = userCalendarRepository.getAuthorityForCalendar(
             calendarGroupId, username);
@@ -103,6 +109,8 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
             //TODO 채팅룸 기록을 지워줘야한다. 메시지는 지우지 않을 것이다.
             deleteGroupByMember(calendarGroupId, username);
         }
+
+        System.out.println("delete Group END");
     }
 
     private void deleteGroupByMember(long calendarGroupId, String username) {
